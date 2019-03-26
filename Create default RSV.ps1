@@ -1,5 +1,13 @@
+####################################################################
+#
+# .Description
+#   Script used for deplou a defalult Recovery Service Vault.
+#
+####################################################################
+# .Author:  Alexandre E. Knorst
+####################################################################
 
-# User definion
+###### User definition ######
 $CUSTOMER_FULL = "SKA"
 
 ##### Preparing variables ##########################################
