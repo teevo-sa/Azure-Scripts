@@ -18,10 +18,10 @@ $PLAN_NAME = "PLAN-BKP-" + $CUSTOMER_FULL +"-Default"
 ####################################################################
 
 #### Validating Resource Group ####
-$RSG = Get-AzureRmResourceGroup -Name $$RSG_BACKUP -Location $LOCATION
+$RSG = Get-AzureRmResourceGroup -Name $RSG_BACKUP -Location $LOCATION
 
 if (!$?) {
-    $RSG = New-AzureRmResourceGroup -Name $$RSG_BACKUP -Location $LOCATION
+    $RSG = New-AzureRmResourceGroup -Name $RSG_BACKUP -Location $LOCATION
 }
 
 #### Creating Recovery Services Vault 
