@@ -32,7 +32,7 @@ Set-AzureRmRecoveryServicesBackupProperties -Vault $RSV -BackupStorageRedundancy
 $TODAY = Get-Date
 $KIND = new-object System.DateTimeKind
 $KIND.value__ = 1 # UTC
-$DATE = New-Object system.datetime($TODAY.Year,$TODAY.Month,$TODAY.Day,18,00,00,$KIND)
+$DATE = New-Object system.datetime($TODAY.Year,$TODAY.Month,$TODAY.Day,22,00,00,$KIND)
 
 $SCHED 		= Get-AzureRmRecoveryServicesBackupSchedulePolicyObject -WorkloadType AzureVM -BackupManagementType AzureVM
 $SCHED.ScheduleRunTimes[0] = $DATE
