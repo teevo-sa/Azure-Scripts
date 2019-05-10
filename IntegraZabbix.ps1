@@ -1,26 +1,12 @@
-###########################################################################################
-#
-# IntegraZabbix
-#
-###########################################################################################
-#
-# Este script tem a finalidade e monitorar o status da maquina junto ao Azure, através da 
-# TAG "ZABBIX.HOSTNAME" e ativa e desativa o monitoramento, afim de evitar que ambiente que 
-# desligado seja monitorado e gere alertas.
-#
-# Date: 21/11/2018
-#
-###########################################################################################
 
 
 # Dados de acesso ao Zabbix
-[String] $ZBX_URL  = 'http://<Hostname ou IP Zabbix>/zabbix/api_jsonrpc.php'
+[String] $ZBX_URL  = 'http://<URL do ZABBIX Server>/zabbix/api_jsonrpc.php'
 [String] $ZBX_User = '<Zabbix API User>'
-[String] $ZBX_Pass = '<Zabbix API Password>'
-
-# Variaveis Globais
+[String] $ZBX_Pass = '<Zabbix API Pass>'
 [String] $ZBX_AUTHToken = ''
    [Int] $ZBX_AUTHID = 0
+   [Int] $ZBX_DELAY = 600
 
 
 # Conecta no Azure
@@ -164,10 +150,30 @@ foreach ($VM in $VMs ) {
     # Validando os status do AZURE com o Monitoramento VM
     if ($ZBX_VM.Length -gt 0) 
     {
+
+        $VM_FULLSTATUS  =  Get-AzureRmVM -ResourceGroupName $VM.ResourceGroupName -Name $VM.Name -Status
+   
+
+
         if ($VM.PowerState -eq 'VM running' -and $ZBX_VM[0].Status -eq 1)
         {
-            [String]::Format("Ligando monitoramento do Host: {0}({1}) - {2}", $ZBX_VM[0].Name, $ZBX_VM[0].hostid, $VM.Name)
-            $retorno = StatusMonitoramento $ZBX_VM[0].hostid 0
+            [String]::Format("Verificando de vai ser Ligado monitoramento do Host: {0}({1}) - {2}", $ZBX_VM[0].Name, $ZBX_VM[0].hostid, $VM.Name)
+
+            # Validando o Delay para ligar 
+            $VM_FULLSTATUS  =  Get-AzureRmVM -ResourceGroupName $VM.ResourceGroupName -Name $VM.Name -Status   
+
+            if ($VM_FULLSTATUS.Statuses[0].Time) {
+
+                $RUNNING_TIME = (get-date) - $VM_FULLSTATUS.Statuses[0].Time
+                $RUNNING_DIFFER = $RUNNING_TIME.TotalSeconds
+
+                if ($RUNNING_DIFFER -gt $ZBX_DELAY) {
+                    [String]::Format("Ligando monitoramento..!")
+                    $retorno = StatusMonitoramento $ZBX_VM[0].hostid 0
+                } else {
+                    [String]::Format("Agurdando, ambiente ligou a menos de {0} segundos", $RUNNING_DIFFER)
+                }
+            }
         } 
         elseif ($VM.PowerState -ne 'VM running' -and $ZBX_VM[0].Status -eq 0)
         {
